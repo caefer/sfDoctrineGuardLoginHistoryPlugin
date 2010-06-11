@@ -1,0 +1,1 @@
+Jun 11 15:14:24 symfony [info] {sfPatternRouting} Match route "homepage" (/) for / with parameters array (  'module' => 'default',  'action' => 'index',)
