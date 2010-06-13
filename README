@@ -1,0 +1,51 @@
+# sfDoctrineGuardLoginHistoryPlugin - A simple login history for sfGuardUsers
+
+This very simple plugin adds a new model to your project called UserLoginHistory.
+In its table you will get a new entry with each login and logout to your website using the sfDoctrineGuardPlugin.
+
+Whenever a user logs in UserLoginHistory will save the users id, the time and date of the login and the IP address from which the login was executed.
+
+## Getting started sfDoctrineGuardLoginHistoryPlugin
+
+Simply install sfDoctrineGuardLoginHistoryPlugin like this:
+
+    $ php symfony plugin:install sfDoctrineGuardLoginHistoryPlugin
+
+Or simply download the latest version and put it into your projects plugins folder.
+
+Now activate the plugin in your config/ProjectConfiguration.class.php
+
+    $this->enablePlugins(..., 'sfDoctrineGuardLoginHistoryPlugin');
+
+Now rebuild all model classes in order to complete the installation.
+
+    $ php symfony doctrine:build --all-classes
+
+Now the plugin is fully installed and working.
+
+## Extending the history
+
+You may want to log more than just the IP address and time and date. Doing this is actually very simple.
+
+Just extend the schema definition of UserLoginHistory in your config/schema.yml and add the fields you want to add.
+
+    UserHistoryLogin:
+      columns:
+        customField: string(255)
+        ...
+
+To implement your business logic you can edit the table class in your projects lib folder.
+
+    // /lib/model/doctrine/sfDoctrineGuardLoginHistoryPlugin/UserLoginHistoryTable.class.php
+    class UserLoginHistoryTable extends PluginUserLoginHistoryTable
+    {
+      public static function writeHistoryEntry(sfEvent $event)
+      {
+        parent::writeHistoryEntry($event);
+        // your business code goes here..
+      }
+    }
+
+You only override the static method writeHistoryEntry() and in it don't forget to call the parent as well. Then you can implement your own code to fill you custom fields.
+
+
