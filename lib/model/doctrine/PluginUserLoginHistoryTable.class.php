@@ -19,13 +19,27 @@ class PluginUserLoginHistoryTable extends Doctrine_Table
 
   static public function writeLoginHistory(sfEvent $event)
   {
+    $sessionUser = $event->getSubject();
     $params = $event->getParameters();
     if(true === $params['authenticated'])
     {
-      $history = new UserLoginHistory();
-      $history->ip = getenv('HTTP_X_FORWARDED_FOR') ? getenv('HTTP_X_FORWARDED_FOR') : getenv('REMOTE_ADDR');
-      $history->User = $event->getSubject()->getGuardUser();
-      $history->save();
+      $userId = $sessionUser->getGuardUser()->id;
+      $sessionUser->setAttribute('user_id', $userId, 'sfDoctrineGuardLoginHistoryPlugin');
+      self::createHistoryEntry('login', $userId);
     }
+    else
+    {
+      $userId = $sessionUser->getAttributeHolder()->remove('user_id', null, 'sfDoctrineGuardLoginHistoryPlugin');
+      self::createHistoryEntry('logout', $userId);
+    }
+  }
+
+  protected static function createHistoryEntry($state, $userId)
+  {
+    $history = new UserLoginHistory();
+    $history->state = $state;
+    $history->user_id = $userId;
+    $history->ip = getenv('HTTP_X_FORWARDED_FOR') ? getenv('HTTP_X_FORWARDED_FOR') : getenv('REMOTE_ADDR');
+    $history->save();
   }
 }
