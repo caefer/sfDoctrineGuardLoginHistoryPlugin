@@ -35,14 +35,13 @@ class PluginUserLoginHistoryTableTest extends PHPUnit_Framework_TestCase
     $sessionUser = new mockUser();
 
     $event = new sfEvent($sessionUser, 'user.change_authentication', array('authenticated' => true));
-    $this->assertEquals(0, Doctrine_Query::create()->from('UserLoginHistory h')->count());
-    UserLoginHistoryTable::writeLoginHistory($event);
-    $this->assertEquals(1, Doctrine_Query::create()->from('UserLoginHistory h')->count());
-
-    $event = new sfEvent($sessionUser, 'user.change_authentication', array('authenticated' => false));
     $before = Doctrine_Query::create()->from('UserLoginHistory h')->count();
     UserLoginHistoryTable::writeLoginHistory($event);
     $this->assertEquals($before+1, Doctrine_Query::create()->from('UserLoginHistory h')->count());
+
+    $event = new sfEvent($sessionUser, 'user.change_authentication', array('authenticated' => false));
+    UserLoginHistoryTable::writeLoginHistory($event);
+    $this->assertEquals($before+2, Doctrine_Query::create()->from('UserLoginHistory h')->count());
   }
 
   protected function setUp()
