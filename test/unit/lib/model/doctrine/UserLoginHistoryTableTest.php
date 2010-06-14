@@ -16,6 +16,8 @@ ini_set('display_errors', '1');
 
 /** central bootstrap for unit tests */
 require_once dirname(__FILE__).'/../../../../bootstrap/unit.php';
+/** mock session user class */
+require_once dirname(__FILE__).'/../../../../fixtures/lib/user/mockUser.class.php';
 /** PHPUnit Framework */
 require_once 'PHPUnit/Framework.php';
 
@@ -30,15 +32,17 @@ class PluginUserLoginHistoryTableTest extends PHPUnit_Framework_TestCase
 {
   public function testWriteLoginHistory()
   {
-    $event = new sfEvent($this, 'user.change_authentication', array('authenticated' => true));
+    $sessionUser = new mockUser();
+
+    $event = new sfEvent($sessionUser, 'user.change_authentication', array('authenticated' => true));
     $this->assertEquals(0, Doctrine_Query::create()->from('UserLoginHistory h')->count());
     UserLoginHistoryTable::writeLoginHistory($event);
     $this->assertEquals(1, Doctrine_Query::create()->from('UserLoginHistory h')->count());
 
-    $event = new sfEvent($this, 'user.change_authentication', array('authenticated' => false));
+    $event = new sfEvent($sessionUser, 'user.change_authentication', array('authenticated' => false));
     $before = Doctrine_Query::create()->from('UserLoginHistory h')->count();
     UserLoginHistoryTable::writeLoginHistory($event);
-    $this->assertEquals($before, Doctrine_Query::create()->from('UserLoginHistory h')->count());
+    $this->assertEquals($before+1, Doctrine_Query::create()->from('UserLoginHistory h')->count());
   }
 
   protected function setUp()
@@ -68,10 +72,5 @@ class PluginUserLoginHistoryTableTest extends PHPUnit_Framework_TestCase
       Doctrine_Manager::getInstance()->dropDatabases('doctrine');
     }
     catch(Doctrine_Export_Exception $e){ /* database did not exist so ignore.. */ }
-  }
-
-  public function getGuardUser()
-  {
-    return Doctrine_Core::getTable('sfGuardUser')->find(1);
   }
 }
