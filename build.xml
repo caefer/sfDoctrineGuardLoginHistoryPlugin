@@ -4,6 +4,9 @@
     <exec executable="svn">  
       <arg line="checkout http://svn.symfony-project.org/branches/1.4/lib ../symfony"/>  
     </exec>
+    <exec executable="svn">  
+      <arg line="checkout http://svn.symfony-project.org/plugins/sfDoctrineGuardPlugin/trunk ../sfDoctrineGuardPlugin"/>  
+    </exec>
   </target>
 
  <target name="clean">
